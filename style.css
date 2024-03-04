@@ -1,0 +1,101 @@
+/*↓↓↓↓↓↓↓ All my codes starts from here ↓↓↓↓↓↓*/
+
+
+@import url('https://fonts.googleapis.com/css2?family=Raleway');
+
+.bg{
+    background-color: rgb(180, 221, 180)
+}
+
+/* All for login page */
+
+.box{
+    margin: 0px 350px 20px;
+    border: 2px rgb(104, 195, 62) solid;
+    padding: 20px;
+    width: 280px;
+    background-color: rgb(180, 221, 180);
+   /* box for the inputs and label */
+}
+
+.outbox{
+    margin: 25px 255px 0px ;
+    border: 2px rgb(87, 178, 59) solid;
+    padding: 20px 50px 80px;
+    background-color: rgb(131, 209, 131);
+    background-image: url(car.png);
+    background-repeat: no-repeat;
+    background-position: 25px 5px;
+   /* to highlight the login/regeister page */
+}
+
+.title{
+    color:  rgb(106, 13, 113);
+    margin: 10px 360px ;
+    font-family: "Raleway", sans-serif;
+    /* page name */
+}
+
+.word{
+    margin: 15px;
+    font-family: "Raleway", sans-serif;
+    font-size: 14px;
+    /* the size and style of the input and label */
+}
+
+.gap{
+    display: block;
+    font-family: "Raleway", sans-serif;
+    width: 240px ;
+    height: 20px;
+    margin: 10px 0px;
+    /* gap between everything */
+}
+
+.button{
+    background-color: rgb(255, 255, 252);
+    border: 1px solid;
+    border-radius: 4px;
+    color: rgb(131, 209, 131);
+    font-family: "Raleway", sans-serif;
+    margin: 10px 100px;
+    justify-content: space-evenly;
+    padding: 5px;
+    width: 30%;
+    /* button ;) */
+}
+
+p{
+    margin: 20px 30px 0px;
+    font-size: 14px;
+    /* the paragaph to give user information */
+}
+
+.sh{
+    font-size: 12px;
+    /* show password in case of mistake in writing the password */
+}
+
+
+
+/* all for regeisterpage */
+
+.outbox.reg{
+    padding: 20px 50px;
+    /* diffrent padding for register as it looks bigger than the page */
+}
+
+
+
+.categoryLink.hide {
+    display: none;
+    /* to hide categories */
+}
+
+
+/* for profile */
+.profile{
+    display: inline;
+    color: pink;
+    text-decoration: none;
+}
