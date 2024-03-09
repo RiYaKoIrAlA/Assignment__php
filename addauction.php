@@ -2,6 +2,18 @@
 session_start();
 require 'connection.php';
 
+// Check if the username is set in the session
+if (!isset($_SESSION['user'])) {
+    // Redirect the user to the login page or display an error message
+    echo "Error: Username not set in the session.";
+    exit;
+}
+
+$user = $_SESSION['user'];
+// Fetch username from the session
+$username = $user['username'];
+$email = $user['email'];
+
 if(isset($_POST['auction_submit'])) {
     $title = $_POST['title'];
     $description = $_POST['description'];
@@ -9,8 +21,10 @@ if(isset($_POST['auction_submit'])) {
     $end_date = $_POST['end_date'];
     $current_bid = $_POST['current_bid']; // Fetch the current bid amount
 
+
     // Convert end_date to proper format
     $end_date_formatted = date('Y-m-d H:i:s', strtotime($end_date));
+    $creation_time = date('Y-m-d H:i:s');
 
     // File upload handling
     if($_FILES["uploadImg"]["error"] === 4) {
@@ -33,23 +47,30 @@ if(isset($_POST['auction_submit'])) {
             $target_file = $target_dir . $newImageName;
 
             if(move_uploaded_file($tmpName, $target_file)) {
-                // Prepare the SQL statement
-                $stmt = $connection->prepare("INSERT INTO auction (title, description, category, end_date, image_path, current_bid)
-                VALUES (:title, :description, :category, :end_date, :image_path, :current_bid)");
+                // Prepare the SQL statement to insert data into the auction table
+                $stmt_insert_auction = $connection->prepare("INSERT INTO auction (title, description, category, end_date, current_bid, creation_time, email, image_path) 
+                VALUES (:title, :description, :category, :end_date, :current_bid, :creation_time, :email, :image_path)");
 
                 // Bind parameters
-                $stmt->bindParam(':title', $title);
-                $stmt->bindParam(':description', $description);
-                $stmt->bindParam(':category', $category);
-                $stmt->bindParam(':end_date', $end_date_formatted);
-                $stmt->bindParam(':image_path', $target_file);
-                $stmt->bindParam(':current_bid', $current_bid);
+                $stmt_insert_auction->bindParam(':title', $title);
+                $stmt_insert_auction->bindParam(':description', $description);
+                $stmt_insert_auction->bindParam(':category', $category);
+                $stmt_insert_auction->bindParam(':end_date', $end_date_formatted);
+                $stmt_insert_auction->bindParam(':current_bid', $current_bid);
+                $stmt_insert_auction->bindParam(':creation_time', $creation_time);
+                $stmt_insert_auction->bindParam(':email', $email);
+                $stmt_insert_auction->bindParam(':image_path', $target_file); // Bind the image path
+
+                if(empty($current_bid)) {
+                    $current_bid = 0;
+                }
 
                 // Execute the statement
-                if($stmt->execute()) {
+                if($stmt_insert_auction->execute()) {
+                    echo "Auction data inserted successfully.";
                     echo "<script> window.location.href = 'auction.php';</script>";
                 } else {
-                    echo "Error: " . $stmt->error;
+                    echo "Error inserting auction data.";
                 }
             } else {
                 echo "Sorry, there was an error uploading your file.";
@@ -68,7 +89,7 @@ if(isset($_POST['auction_submit'])) {
 </head>
 <body>
 <div class="box">
-    <form action="" method="post" style="display: grid" enctype="multipart/form-data">
+    <form action="" method="post" style="display: grid" enctype="multipart/form-data" >
         <div>
             <label for="title">Title</label>
             <input type="text" name="title" class="gap">

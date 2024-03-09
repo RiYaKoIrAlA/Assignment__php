@@ -100,7 +100,7 @@ body > nav ul li a {
 	grid-template-columns: 18% 80%;
 }
 
-.carList img {width: auto; display: block; max-width: 10vw;}
+.carList img {width: auto; display: block; max-width: 15vw;}
 
 p.price {display: block; text-align: right; font-weight: bold; font-size: 1.5em;}
 a.more {display: block; text-align: right; font-weight: bold; float: right; background-color: #3665f3;
@@ -111,7 +111,9 @@ a.more {display: block; text-align: right; font-weight: bold; float: right; back
 	cursor: pointer; }
 
 main {padding: 3vw; display: block; overflow: hidden; width: 80vw; margin: auto; border-left: 2px solid #ddd; border-right: 2px solid #ddd;}
-
+article{
+	margin: 10px 0px 0px 40px
+}
 article.car {
 	display: grid;
 	grid-template-columns: 60% 40%;

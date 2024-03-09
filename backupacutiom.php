@@ -6,13 +6,17 @@ $stmt = $connection->prepare("SELECT * FROM auction ORDER BY creation_time DESC"
 $stmt->execute();
 $auctions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-
+$_SESSION['user'] = array(
+    'user_id' => $user_id,
+    'username' => $username,
+    'email' => $email
+);
 
 $user = $_SESSION['user'];
-$email = $user['email'];
+$user_id = $user['user_id'];
 // Fetch auctions associated with the current user
-$auctions = $connection->prepare("SELECT * FROM auction WHERE email = :email");
-$auctions->execute(array('email' => $email));
+$auctions = $connection->prepare("SELECT * FROM auction WHERE user_id = :user_id");
+$auctions->execute(array('user_id' => $user_id));
 $auctions = $auctions->fetchAll(PDO::FETCH_ASSOC);
 
 ?>

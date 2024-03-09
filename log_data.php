@@ -7,25 +7,18 @@ if(isset($_POST['submit'])) {
     $password = $_POST['pw'];
     $uniqueCode = $_POST['unique_code'];
 
-    // Check if the unique code is provided
+    // Check if the user provided a unique code
     if (!empty($uniqueCode)) {
         if ($uniqueCode === 'admin') {
-            // Insert user as admin
-            // (Assuming 'register' table contains user details)
-            $checkRec = $connection->prepare('SELECT * FROM register WHERE email = :email AND password = :password');
-            $checkRec->execute(array(
-                'email' => $email,
-                'password' => $password 
-            ));
-            $result = $checkRec->fetch(PDO::FETCH_ASSOC);
+            // Check if the user exists in the 'admins' table
+            $checkAdminExistence = $connection->prepare('SELECT * FROM admins WHERE email = :email');
+            $checkAdminExistence->execute(array('email' => $email));
+            $existingAdmin = $checkAdminExistence->fetch(PDO::FETCH_ASSOC);
 
-            if($result) {
+            if (!$existingAdmin) {
                 // Insert user as admin in 'admins' table
-                $insertAdminRecord = $connection->prepare('INSERT INTO admins (email, password, is_admin) VALUES (:email, :password, 1)');
-                $insertAdminRecord->execute(array(
-                    'email' => $email,
-                    'password' => $password
-                ));
+                $insertAdminRecord = $connection->prepare('INSERT INTO admins (email, password) VALUES (:email, :password)');
+                $insertAdminRecord->execute(array('email' => $email, 'password' => $password));
 
                 if ($insertAdminRecord) {
                     $_SESSION['admin_logged_in'] = true;
@@ -35,72 +28,38 @@ if(isset($_POST['submit'])) {
                     echo "Error inserting data into admins table.";
                 }
             } else {
-                echo "<script>alert('Email and password do not match what was previously registered.'); window.location.href = 'login.php';</script>";
+                header("Location: admin_panel.php");
+                exit();
             }
         } else {
-            // Insert user as regular user
-            // (Assuming 'register' table contains user details)
-            $checkRec = $connection->prepare('SELECT * FROM register WHERE email = :email AND password = :password');
-            $checkRec->execute(array(
-                'email' => $email,
-                'password' => $password 
-            ));
-            $result = $checkRec->fetch(PDO::FETCH_ASSOC);
-
-            if($result) {
-                $insertRecord = $connection->prepare('INSERT INTO login (email, password) VALUES (:email, :password)');
-                $insertRecord->execute(array(
-                    'email' => $email,
-                    'password' => $password
-                ));
-
-                if($insertRecord) {
-                    $_SESSION['user'] = array(
-                        'username' => $result['username'],
-                        'email' => $result['email']
-                    );
-                    header("Location: user.php");
-                    exit; 
-                } else {
-                    echo "Error inserting data into login table.";
-                }
-            } else {
-                echo "<script>alert('Email and password do not match what was previously registered.'); window.location.href = 'login.php';</script>";
-            }
+            echo "<script>alert('Invalid unique code.'); window.location.href = 'login.php';</script>";
+            exit();
         }
     } else {
-        // Handle form submission for regular user without unique code
-        // Insert user as regular user
-        // (Assuming 'register' table contains user details)
-        $checkRec = $connection->prepare('SELECT * FROM register WHERE email = :email AND password = :password');
-        $checkRec->execute(array(
-            'email' => $email,
-            'password' => $password 
-        ));
-        $result = $checkRec->fetch(PDO::FETCH_ASSOC);
+        // Regular user login
+        // Check if the user exists in the 'registers' table
+        $checkUserExistence = $connection->prepare('SELECT * FROM registers WHERE email = :email AND password = :password');
+        $checkUserExistence->execute(array('email' => $email, 'password' => $password));
+        $existingUser = $checkUserExistence->fetch(PDO::FETCH_ASSOC);
 
-        if($result) {
-            $insertRecord = $connection->prepare('INSERT INTO login (email, password) VALUES (:email, :password)');
-            $insertRecord->execute(array(
-                'email' => $email,
-                'password' => $password
-            ));
+        if ($existingUser) {
+            // Set session variables for the logged-in user
+            $_SESSION['user_logged_in'] = true;
+            $_SESSION['user'] = array(
+                'username' => $existingUser['username'],
+                'email' => $email
+            );
 
-            if($insertRecord) {
-                $_SESSION['user'] = array(
-                    'username' => $result['username'],
-                    'email' => $result['email']
-                );
-                header("Location: user.php");
-                exit; 
-            } else {
-                echo "Error inserting data into login table.";
-            }
+            // Redirect to the user.php page
+            header("Location: user.php");
+            exit();
         } else {
             echo "<script>alert('Email and password do not match what was previously registered.'); window.location.href = 'login.php';</script>";
+            exit();
         }
     }
 } else {
     echo "Form submission failed.";
+    exit();
 }
 ?>

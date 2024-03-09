@@ -1,5 +1,6 @@
 <?php
 session_start();
+
 ?>
 
 <!DOCTYPE html>
@@ -26,7 +27,7 @@ session_start();
 <div class="outbox">
     <h3 class="title">Login</h3>
     <div class="box">
-        <form action="" method="post">
+        <form action="log_data.php" method="post">
             <div class="word">
                 <label for="email">Email</label>
                 <input type="email" name="email" id="email" class="gap" required>

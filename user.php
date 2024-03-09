@@ -1,6 +1,7 @@
 <?php
 session_start();
 require 'connection.php';
+$_SESSION['user_logged_in'] = true;
 // Fetch categories from the database
 $checkRec = $connection->prepare('SELECT name FROM category');
 $checkRec->execute();
@@ -48,7 +49,7 @@ $categories = $checkRec->fetchAll(PDO::FETCH_COLUMN);
 			
 		</header>
 	<nav>
-    <ul style="width: 70vw;">
+    <ul>
 		<li><a href="index.php">Home</a></li>
         <li class="dropdown">
             <a class="categoryLink" href="#">Categories</a>
@@ -67,7 +68,8 @@ $categories = $checkRec->fetchAll(PDO::FETCH_COLUMN);
                 ?>
             </ul>
         </li>
-		<li> <a href="addauction.php">Add own auction?!!</a></li>
+		<li><a href='addauction.php'>Add auction??</a></li>
+		<li><a href="auction.php">Own auction</a></li>
 
 		</a></li>
 		<li><?php
@@ -77,7 +79,7 @@ $categories = $checkRec->fetchAll(PDO::FETCH_COLUMN);
 </nav>
 
 
-		<img src="banners/1.jpg" alt="Banner" style="width: 80vw; height: 400px; padding-left: 120px" />
+		<img src="banners/1.jpg" alt="Banner" />
 
 		<main>
 			<h1>Latest Car Listings / Search Results / Category listing</h1>
@@ -146,9 +148,6 @@ $categories = $checkRec->fetchAll(PDO::FETCH_COLUMN);
 						<input type="submit" value="Submit" />
 
 					</form>
-
-
-
 			<footer>
 				&copy; Carbuy 2024
 			</footer>

@@ -52,7 +52,7 @@ $categories = $checkRec->fetchAll(PDO::FETCH_COLUMN);
 			
 		</header>
 		<nav>
-    <ul style="width:80vw ;">
+    <ul>
 		<li><a href="index.php">Home</a></li>
         <li class="dropdown">
             <a class="categoryLink" href="#">Categories</a>
@@ -82,5 +82,5 @@ $categories = $checkRec->fetchAll(PDO::FETCH_COLUMN);
 </nav>
 
 		<img src="banners/1.jpg" alt="Banner" style="width: 100vw; height: 400px;" />
-                </body>
-                </html>
+	</body>
+	</html>

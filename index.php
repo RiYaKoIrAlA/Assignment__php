@@ -74,6 +74,7 @@ $categories = $checkRec->fetchAll(PDO::FETCH_COLUMN);
         <?php
         if(isset($_SESSION['user'])) {
 			echo "<li><a href='addauction.php'>Add auction??</a></li>";
+			echo "<li><a href='auction.php'>Own auction</a></li>";
             echo "<li><a href='javascript:void(0)' onclick=\"confirmLogout()\">Logout</a></li>";
         }elseif (isset($_SESSION['admin_logged_in'])) {
 			echo "<li><a href='adminCategories.php'>Admin</a></li>";

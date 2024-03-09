@@ -11,7 +11,6 @@ if(isset($_POST['submit'])) {
     $username = $_POST['username'];
     $email = $_POST['email'];
     $password = $_POST['pw'];
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
     $confirmPassword = $_POST['confirm_pw'];
 
     if($password !== $confirmPassword) {
@@ -21,7 +20,7 @@ if(isset($_POST['submit'])) {
 
 
     // Prepare and execute the insert statement
-    $insertRecord = $connection->prepare('INSERT INTO register(user_id,username, email, password) VALUES (user_id,:username, :email, :password)');
+    $insertRecord = $connection->prepare('INSERT INTO registers(register_id,username, email, password) VALUES (register_id,:username, :email, :password)');
     $insertRecord->execute(array(
         'username' => $username,
         'email' => $email,
@@ -31,6 +30,7 @@ if(isset($_POST['submit'])) {
     // Check if insertion was successful
     if($insertRecord) {
         // Registration successful, print JavaScript to redirect to login page
+        $user_id = $connection->lastInsertId();
         echo "<script>alert('Registration successful. Redirecting to login page.'); window.location.href = 'login.php';</script>";
         exit; // Make sure to exit after redirection
     } else {
