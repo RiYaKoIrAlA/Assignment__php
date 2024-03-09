@@ -76,7 +76,9 @@ p{
     /* show password in case of mistake in writing the password */
 }
 
-
+.profile{
+    display: inline-block;
+}
 
 /* all for regeisterpage */
 
@@ -86,16 +88,43 @@ p{
 }
 
 
-
-.categoryLink.hide {
+/* drop dwon for categories */
+/* Hide dropdown content by default */
+.dropdown-content {
     display: none;
-    /* to hide categories */
+    position: absolute;
+    background-color: #f9f9f9;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
 }
 
+/* Show dropdown content when hovering over the dropdown */
+.dropdown:hover .dropdown-content {
+    display: block;
+    font-size: 16px;
+    width: 20%;
+}
 
-/* for profile */
-.profile{
-    display: inline;
-    color: pink;
+/* Style for the dropdown links */
+.dropdown-content a {
+    color: black;
     text-decoration: none;
+    display: block;
+}
+
+/* Change background color of dropdown links on hover */
+.dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+/* Auction */
+
+.auctionItem{
+    width: 500px;
+    height: 150px;
+}
+.contain{
+    margin-left: 120px;
+
+
 }

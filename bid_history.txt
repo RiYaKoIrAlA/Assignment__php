@@ -1,0 +1,2 @@
+2024-03-07 13:53:03 - Auction ID: 1 - Bid Amount: 70000 - User: 172.18.0.1
+2024-03-07 13:53:20 - Auction ID: 1 - Bid Amount: 200 - User: 172.18.0.1

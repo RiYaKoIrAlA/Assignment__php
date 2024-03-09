@@ -1,59 +1,102 @@
+<?php
+session_start(); // Initialize session
+// Fetch categories from the database
+require 'connection.php';
+$checkRec = $connection->prepare('SELECT name FROM category');
+$checkRec->execute();
+$categories = $checkRec->fetchAll(PDO::FETCH_COLUMN);
+?>
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>Carbuy Auctions</title>
-		<link rel="stylesheet" href="carbuy.css" />
-		<link rel="stylesheet" href="style.css" />
-		
-	</head>
+<head>
+    <title>Carbuy Auctions</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="carbuy.css">
+</head>
+<script>
+    function confirmLogout() {
+        if (confirm("Are you sure you want to logout?")) {
+            window.location.href = 'logout.php';
+        }
+    }
+</script>
+<body>
+<header>
+    <h1>
+        <span class="C">C</span>
+        <span class="a">a</span>
+        <span class="r">r</span>
+        <span class="b">b</span>
+        <span class="u">u</span>
+        <span class="y">y</span>
+    </h1>
+    <div class="profile">
+        <form action="#">
+            <input type="text" name="search" placeholder="Search for a car" />
+            <input type="submit" name="submit" value="Search" />
+            <?php
+            if(isset($_SESSION['user'])) {
+                $user = $_SESSION['user'];// Display user's profile information
+                echo "{$user['username']}";
+            }elseif(isset($_SESSION['admin_logged_in'])){
+				echo "Admin";
+            }
+            else{
+                echo 'profile';
+            }
+            ?>
 
-	<body>
-		<header>
-			<h1>
-				<span class="C">C</span>
-			    <span class="a">a</span>
-				<span class="r">r</span>
-				<span class="b">b</span>
-				<span class="u">u</span>
-				<span class="y">y</span>
-		</h1>
-		<div class="profile">
-		<form action="#">
-				<input type="text" name="search" placeholder="Search for a car" />
-				<input type="submit" name="submit" value="Search" />
+        </form>
+    </div>
+
+</header>
+<nav>
+    <ul>
+        <li><a href="index.php">Home</a></li>
+        <li class="dropdown">
+            <a class="categoryLink" href="#">Categories</a>
+            <ul class="dropdown-content">
+                <li><a class="categoryLink " href="#">Estate</a></li>
+                <li><a class="categoryLink" href="#">Electric</a></li>
+                <li><a class="categoryLink" href="#">Coupe</a></li>
+                <li><a class="categoryLink" href="#">Saloon</a></li>
+                <li><a class="categoryLink" href="#">4x4</a></li>
+                <li><a class="categoryLink" href="#">Sports</a></li>
+                <li><a class="categoryLink" href="#">Hybrid</a></li>
+				<?php
+                foreach ($categories as $category) {
+                    echo "<li><a class='categoryLink' href='#'>$category</a></li>";
+                }
+                ?>
 				
-				<a  href="login.php">Profile</a>
-			</form>
-		</div>
-			
-		</header>
-		<nav>
-			<ul>
-				<li><a class="categoryLink hide" href="#">Estate</a></li>
-				<li><a class="categoryLink" href="#">Electric</a></li>
-				<li><a class="categoryLink" href="#">Coupe</a></li>
-				<li><a class="categoryLink" href="#">Saloon</a></li>
-				<li><a class="categoryLink" href="#">4x4</a></li>
-				<li><a class="categoryLink" href="#">Sports</a></li>
-				<li><a class="categoryLink" href="#">Hybrid</a></li>
-				<li><a class="categoryLink" href="#">More</a></li>
-                <li><a href=""></a></li>
-			</ul>
-		</nav>
-		<img src="banners/1.jpg" alt="Banner" />
+            </ul>
+        </li>
+        <?php
+        if(isset($_SESSION['user'])) {
+			echo "<li><a href='addauction.php'>Add auction??</a></li>";
+            echo "<li><a href='javascript:void(0)' onclick=\"confirmLogout()\">Logout</a></li>";
+        }elseif (isset($_SESSION['admin_logged_in'])) {
+			echo "<li><a href='adminCategories.php'>Admin</a></li>";
+			echo "<li><a href='javascript:void(0)' onclick=\"confirmLogout()\">Logout</a></li>";
+		}else {
+            echo "<li><a href='Register.php'>Register</a></li>";
+            echo "<li><a href='Login.php'>Login</a></li>";
+        }
+        ?>
+    </ul>
+</nav>
+		<img src="banners/1.jpg" alt="Banner" style="width: 100vw; height: 400px;" />
 
 		<main>
-			<h1>Latest Car Listings / Search Results / Category listing</h1>
+			<h1>Latest Car Listings</h1>
 			<ul class="carList">
 				<li>
 					<img src="car.png" alt="car name">
 					<article>
 						<h2>Car model and make</h2>
 						<h3>Car category</h3>
-						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. In sodales ornare purus, non laoreet dolor sagittis id. Vestibulum lobortis laoreet nibh, eu luctus purus volutpat sit amet. Proin nec iaculis nulla. Vivamus nec tempus quam, sed dapibus massa. Etiam metus nunc, cursus vitae ex nec, scelerisque dapibus eros. Donec ac diam a ipsum accumsan aliquet non quis orci. Etiam in sapien non erat dapibus rhoncus porta at lorem. Suspendisse est urna, egestas ut purus quis, facilisis porta tellus. Pellentesque luctus dolor ut quam luctus, nec porttitor risus dictum. Aliquam sed arcu vehicula, tempor velit consectetur, feugiat mauris. Sed non pellentesque quam. Integer in tempus enim.</p>
-
 						<p class="price">Current bid: £1234.00</p>
-						<a href="#" class="more auctionLink">More &gt;&gt;</a>
+						<a href="bid.php" class="more auctionLink">More &gt;&gt;</a>
 					</article>
 				</li>
 				<li>
@@ -61,10 +104,8 @@
 					<article>
 						<h2>Car model and make</h2>
 						<h3>Car category</h3>
-						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. In sodales ornare purus, non laoreet dolor sagittis id. Vestibulum lobortis laoreet nibh, eu luctus purus volutpat sit amet. Proin nec iaculis nulla. Vivamus nec tempus quam, sed dapibus massa. Etiam metus nunc, cursus vitae ex nec, scelerisque dapibus eros. Donec ac diam a ipsum accumsan aliquet non quis orci. Etiam in sapien non erat dapibus rhoncus porta at lorem. Suspendisse est urna, egestas ut purus quis, facilisis porta tellus. Pellentesque luctus dolor ut quam luctus, nec porttitor risus dictum. Aliquam sed arcu vehicula, tempor velit consectetur, feugiat mauris. Sed non pellentesque quam. Integer in tempus enim.</p>
-
 						<p class="price">Current bid: £2000</p>
-						<a href="#" class="more auctionLink">More &gt;&gt;</a>
+						<a href="bid.php" class="more auctionLink">More &gt;&gt;</a>
 					</article>
 				</li>
 				<li>
@@ -72,10 +113,8 @@
 					<article>
 						<h2>Car model and make</h2>
 						<h3>Car category</h3>
-						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. In sodales ornare purus, non laoreet dolor sagittis id. Vestibulum lobortis laoreet nibh, eu luctus purus volutpat sit amet. Proin nec iaculis nulla. Vivamus nec tempus quam, sed dapibus massa. Etiam metus nunc, cursus vitae ex nec, scelerisque dapibus eros. Donec ac diam a ipsum accumsan aliquet non quis orci. Etiam in sapien non erat dapibus rhoncus porta at lorem. Suspendisse est urna, egestas ut purus quis, facilisis porta tellus. Pellentesque luctus dolor ut quam luctus, nec porttitor risus dictum. Aliquam sed arcu vehicula, tempor velit consectetur, feugiat mauris. Sed non pellentesque quam. Integer in tempus enim.</p>
-
 						<p class="price">Current bid: £3000</p>
-						<a href="auction.php" class="more auctionLink">More &gt;&gt;</a>
+						<a href="bid.php" class="more auctionLink">More &gt;&gt;</a>
 					</article>
 				</li>
 			</ul>
@@ -89,13 +128,17 @@
 					<section class="details">
 						<h2>Car model and make</h2>
 						<h3>Car category</h3>
-						<p>Auction created by <a href="#">User.Name</a></p>
+						<p>Auction created by user1
+
+						</a></p>
 						<p class="price">Current bid: £4000</p>
 						<time>Time left: 8 hours 3 minutes</time>
-						<form action="#" class="bid">
-							<input type="text" name="bid" placeholder="Enter bid amount" />
-							<input type="submit" value="Place bid" />
-						</form>
+						<?php
+            if(isset($_SESSION['user']) && $_SESSION['user'] === true) {
+                echo "<li><a href='bid.php'>Bid</a></li>"; // Display bid option if user is true
+            }
+        ?>
+					
 					</section>
 					<section class="description">
 					<p>
@@ -119,22 +162,7 @@
 							<input type="submit" name="submit" value="Add Review" />
 						</form>
 					</section>
-					</article>
-
-					<hr />
-					<h1>Sample Form</h1>
-
-					<form action="#">
-						<label>Text box</label> <input type="text" />
-						<label>Another Text box</label> <input type="text" />
-						<input type="checkbox" /> <label>Checkbox</label>
-						<input type="radio" /> <label>Radio</label>
-						<input type="submit" value="Submit" />
-
-					</form>
-
-
-
+				</article>
 			<footer>
 				&copy; Carbuy 2024
 			</footer>
