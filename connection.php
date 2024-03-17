@@ -1,6 +1,6 @@
 <?php 
 $server_name = 'mysql';
-$user_name = 'Riya';
+$user_name = 'Riya_koirala';
 $password = 'student';
 $database_name = 'ijdb';
 

@@ -1,156 +1,123 @@
 <?php
-session_start();
+session_start(); // Initialize session
+
 require 'connection.php';
-$_SESSION['user_logged_in'] = true;
+
 // Fetch categories from the database
-$checkRec = $connection->prepare('SELECT name FROM category');
+$checkRec = $connection->prepare('SELECT name FROM categories');
 $checkRec->execute();
-$categories = $checkRec->fetchAll(PDO::FETCH_COLUMN);
+$categories = $checkRec->fetchAll(PDO::FETCH_ASSOC);
+
+// Check if user_id is set in the session
+$user_id = isset($_SESSION['user']['user_id']) ? $_SESSION['user']['user_id'] : null;
+
+// Fetch auctions associated with the current user
+$stmt_user_auctions = $connection->prepare("SELECT * FROM auctions WHERE user_id = :user_id");
+$stmt_user_auctions->execute(array('user_id' => $user_id));
+$user_auctions = $stmt_user_auctions->fetchAll(PDO::FETCH_ASSOC);
+
+// Fetch all auctions
+$stmt_all_auctions = $connection->prepare("SELECT * FROM auctions ORDER BY creation_time DESC");
+$stmt_all_auctions->execute();
+$all_auctions = $stmt_all_auctions->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>Carbuy Auctions</title>
-		<link rel="stylesheet" href="style.css" />
-		<link rel="stylesheet" href="carbuy.css">
-		
-	</head>
-    <script>
-        function confirmLogout() {
-            if (confirm("Are you sure you want to logout?")) {
+<head>
+    <title>Carbuy Auctions</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="carbuy.css">
+</head>
+<script>
+    function confirmLogout() {
+        if (confirm("Are you sure you want to logout?")) {
             window.location.href = 'logout.php';
+        }
     }
-}
 </script>
-	<body>
-		<header>
-			<h1>
-				<span class="C">C</span>
-			    <span class="a">a</span>
-				<span class="r">r</span>
-				<span class="b">b</span>
-				<span class="u">u</span>
-				<span class="y">y</span>
-		</h1>
-		<div class="profile">
-		<form action="#">
-				<input type="text" name="search" placeholder="Search for a car" />
-				<input type="submit" name="submit" value="Search" />
-                <?php
-                    if(isset($_SESSION['user'])) {
-                        $user = $_SESSION['user'];// Display user's profile information
-                        echo "{$user['username']}";
-                    } 
-                    ?>
-
-			</form>
-		</div>
-			
-		</header>
-	<nav>
+<body>
+<header>
+    <h1>
+        <span class="C">C</span>
+        <span class="a">a</span>
+        <span class="r">r</span>
+        <span class="b">b</span>
+        <span class="u">u</span>
+        <span class="y">y</span>
+    </h1>
+    <div class="profile">
+        <form action="#">
+            <input type="text" name="search" placeholder="Search for a car" />
+            <input type="submit" name="submit" value="Search" />
+            <?php
+            if(isset($_SESSION['user'])) {
+                $user = $_SESSION['user'];// Display user's profile information
+                echo "{$user['username']}";
+            } elseif(isset($_SESSION['admin_logged_in'])) {
+                echo "Admin";
+            } else {
+                echo 'profile';
+            }
+            ?>
+        </form>
+    </div>
+</header>
+<nav>
     <ul>
-		<li><a href="index.php">Home</a></li>
+        <li><a href="index.php">Home</a></li>
         <li class="dropdown">
             <a class="categoryLink" href="#">Categories</a>
             <ul class="dropdown-content">
-			<li><a class="categoryLink  " href="#">Estate</a></li>
-			<li><a class="categoryLink" href="#">Electric</a></li>
-			<li><a class="categoryLink" href="#">Coupe</a></li>
-			<li><a class="categoryLink" href="#">Saloon</a></li>
-			<li><a class="categoryLink" href="#">4x4</a></li>
-			<li><a class="categoryLink" href="#">Sports</a></li>
-			<li><a class="categoryLink" href="#">Hybrid</a></li>
-			<?php
+                <?php
                 foreach ($categories as $category) {
-                    echo "<li><a class='categoryLink' href='#'>$category</a></li>";
+                    echo "<li><a class='categoryLink' href='#'>" . $category['name'] . "</a></li>";
                 }
                 ?>
             </ul>
         </li>
-		<li><a href='addauction.php'>Add auction??</a></li>
-		<li><a href="auction.php">Own auction</a></li>
-
-		</a></li>
-		<li><?php
-             echo "<a href='javascript:void(0)' onclick=\"confirmLogout()\">Logout</a>";
-            ?></a></li>      
+        <?php
+        if(isset($_SESSION['user'])) {
+            echo "<li><a href='addauction.php'>Add auction??</a></li>";
+            echo "<li><a href='product.php'>Own product</a></li>";
+            echo "<li><a href='javascript:void(0)' onclick=\"confirmLogout()\">Logout</a></li>";
+        } elseif (isset($_SESSION['admin_logged_in'])) {
+            echo "<li><a href='adminCategories.php'>Admin</a></li>";
+            echo "<li><a href='javascript:void(0)' onclick=\"confirmLogout()\">Logout</a></li>";
+        } else {
+            echo "<li><a href='Register.php'>Register</a></li>";
+            echo "<li><a href='Login.php'>Login</a></li>";
+        }
+        ?>
     </ul>
 </nav>
+<img src="banners/1.jpg" alt="Banner" style="width: 100vw; height: 400px;" />
 
+<main>
+    <h1>Latest Car Listings</h1>
+    <ul class="carList">
+        <?php foreach ($all_auctions as $auction): ?>
+            <li>
+                <img src="<?php echo $auction['image_path']; ?>" class="auctionItem" alt="<?php echo $auction['title']; ?>">
+                <article class="contain">
+                    <h2><?php echo $auction['title']; ?></h2>
+                    <h3><?php echo $auction['description']; ?></h3>
+                    <p class="price">Current bid: £<?php echo $auction['current_bid']; ?></p>
+                    <?php
+                if ($user_id === $auction['user_id']) {
+                    echo '<a href="auction.php?auction_id=' . $auction['auction_id'] . '" class="edit auctionLink">Edit</a>';
+                } else {
+                    echo '<a href="bid.php?auction_id=' . $auction['auction_id'] . '&user_id=' . $auction['user_id'] . '" class="more auctionLink">More &gt;&gt;</a>';
+                }
+                ?>
+            </li>
+        <?php endforeach; ?>
+    </ul>
+</main>
 
-		<img src="banners/1.jpg" alt="Banner" />
+<footer>
+    &copy; Carbuy 2024
+</footer>
 
-		<main>
-			<h1>Latest Car Listings / Search Results / Category listing</h1>
-			<ul class="carList">
-					<img src="car.png" alt="car name">
-					<article>
-						<h2>Car model and make</h2>
-						<h3>Car category</h3>
-						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. In sodales ornare purus, non laoreet dolor sagittis id. Vestibulum lobortis laoreet nibh, eu luctus purus volutpat sit amet. Proin nec iaculis nulla. Vivamus nec tempus quam, sed dapibus massa. Etiam metus nunc, cursus vitae ex nec, scelerisque dapibus eros. Donec ac diam a ipsum accumsan aliquet non quis orci. Etiam in sapien non erat dapibus rhoncus porta at lorem. Suspendisse est urna, egestas ut purus quis, facilisis porta tellus. Pellentesque luctus dolor ut quam luctus, nec porttitor risus dictum. Aliquam sed arcu vehicula, tempor velit consectetur, feugiat mauris. Sed non pellentesque quam. Integer in tempus enim.</p>
-
-						<p class="price">Current bid: £1234.00</p>
-						<a href="bid.php" class="more auctionLink">More &gt;&gt;</a>
-					</article>
-				</li>
-				<li>
-					<img src="car.png" alt="car name">
-					<article>
-						<h2>Car model and make</h2>
-						<h3>Car category</h3>
-						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. In sodales ornare purus, non laoreet dolor sagittis id. Vestibulum lobortis laoreet nibh, eu luctus purus volutpat sit amet. Proin nec iaculis nulla. Vivamus nec tempus quam, sed dapibus massa. Etiam metus nunc, cursus vitae ex nec, scelerisque dapibus eros. Donec ac diam a ipsum accumsan aliquet non quis orci. Etiam in sapien non erat dapibus rhoncus porta at lorem. Suspendisse est urna, egestas ut purus quis, facilisis porta tellus. Pellentesque luctus dolor ut quam luctus, nec porttitor risus dictum. Aliquam sed arcu vehicula, tempor velit consectetur, feugiat mauris. Sed non pellentesque quam. Integer in tempus enim.</p>
-
-						<p class="price">Current bid: £2000</p>
-						<a href="bid.php" class="more auctionLink">More &gt;&gt;</a>
-					</article>
-				</li>
-				<li>
-					<img src="car.png" alt="car name">
-					<article>
-						<h2>Car model and make</h2>
-						<h3>Car category</h3>
-						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. In sodales ornare purus, non laoreet dolor sagittis id. Vestibulum lobortis laoreet nibh, eu luctus purus volutpat sit amet. Proin nec iaculis nulla. Vivamus nec tempus quam, sed dapibus massa. Etiam metus nunc, cursus vitae ex nec, scelerisque dapibus eros. Donec ac diam a ipsum accumsan aliquet non quis orci. Etiam in sapien non erat dapibus rhoncus porta at lorem. Suspendisse est urna, egestas ut purus quis, facilisis porta tellus. Pellentesque luctus dolor ut quam luctus, nec porttitor risus dictum. Aliquam sed arcu vehicula, tempor velit consectetur, feugiat mauris. Sed non pellentesque quam. Integer in tempus enim.</p>
-
-						<p class="price">Current bid: £3000</p>
-						<a href="bid.php" class="more auctionLink">More &gt;&gt;</a>
-					</article>
-				</li>
-			</ul>
-
-			<hr />
-            <h1>Car Page</h1>
-			<article class="car">
-
-					<img src="car.png" alt="car name">
-					<section class="details">
-						<h2>Car model and make</h2>
-						<h3>Car category</h3>
-						<p>Auction created by user1
-
-						</a></p>
-						<p class="price">Current bid: £4000</p>
-						<time>Time left: 8 hours 3 minutes</time>
-						<?php
-            if(isset($_SESSION['user']) && $_SESSION['user'] === true) {
-                echo "<li><a href='bid.php'>Bid</a></li>"; // Display bid option if user is true
-            }
-        ?>
-
-					<hr />
-					<h1>Sample Form</h1>
-
-					<form action="#">
-						<label>Text box</label> <input type="text" />
-						<label>Another Text box</label> <input type="text" />
-						<input type="checkbox" /> <label>Checkbox</label>
-						<input type="radio" /> <label>Radio</label>
-						<input type="submit" value="Submit" />
-
-					</form>
-			<footer>
-				&copy; Carbuy 2024
-			</footer>
-		</main>
-	</body>
+</body>
 </html>

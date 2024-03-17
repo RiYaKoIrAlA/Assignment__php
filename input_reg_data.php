@@ -20,7 +20,7 @@ if(isset($_POST['submit'])) {
 
 
     // Prepare and execute the insert statement
-    $insertRecord = $connection->prepare('INSERT INTO registers(register_id,username, email, password) VALUES (register_id,:username, :email, :password)');
+    $insertRecord = $connection->prepare('INSERT INTO users(user_id,username, email, password) VALUES (user_id,:username, :email, :password)');
     $insertRecord->execute(array(
         'username' => $username,
         'email' => $email,
